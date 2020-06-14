@@ -4,7 +4,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/IrvinIrvin/forum/app/contentmanager/usermanager"
 	"github.com/IrvinIrvin/forum/app/dbconnect"
@@ -59,12 +58,12 @@ func main() {
 
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("../css")))) // handles css folder
-	// log.Println("Listening 8080...")
-	// log.Println(http.ListenAndServe(":8080", nil))
-	port := os.Getenv("PORT") //heroku присваивает свой порт сменить на свой при тестировании, либо экспортировать переменную PORT
-	log.Println("heroku port: " + port)
-	log.Println("Listening " + port + "...")
-	log.Println(http.ListenAndServe(":"+port, nil))
+	log.Println("Listening 8080...")
+	log.Println(http.ListenAndServe(":8080", nil))
+	// port := os.Getenv("PORT") //heroku присваивает свой порт сменить на свой при тестировании, либо экспортировать переменную PORT
+	// log.Println("heroku port: " + port)
+	// log.Println("Listening " + port + "...")
+	// log.Println(http.ListenAndServe(":"+port, nil))
 }
 
 // handles main page
