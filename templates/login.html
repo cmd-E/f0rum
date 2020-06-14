@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login</title>
+        <link rel="stylesheet" href="../css/loginstyles.css">
+    </head>
+    <body>
+        <div class="mainform">
+            <h1>Log In</h1>
+            <form action="/log" method="POST">
+                <hr>
+                <div class="textboxes">
+                    <input class="tbcentered" type="text" name="username"  placeholder="Username" required/>
+                    <input class="tbcentered" type="password" name="password" placeholder="Password" required/>
+                </div>
+                
+                <div class="buttons">
+                    <!-- <a type="submit" class="button">Register</a> -->
+                    <input type="submit" value="Log In"/>
+                    <a href="/registration" class="loginbutton">Register</a>
+                    
+                </div>
+                <div class="guest">
+                    <a href="/">Enter as guest</a>
+                </div>
+                {{if .Wrong}}
+                    <p class="error">Неверный логин или пароль</p>
+                {{end}}
+            </form>
+        </div>
+    </body>
+</html>

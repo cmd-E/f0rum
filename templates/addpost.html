@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>add new post</title>
+    <link rel="stylesheet" href="../css/addpoststyles.css">
+</head>
+<body>
+    <nav>
+        <ul>
+            {{with .User}}
+                <li><a href="/profile">{{.Name}}</a></li>
+                <li><a href="/logout">Log out</a></li>
+            {{end}}
+        </ul>   
+    </nav>
+        <div class="bckbuttondiv">
+            <a class="backbutton" href="/">На главную</a>
+        </div>
+    <div class="paddingdiv">
+        <div class="main">
+            <form action="/newpost" method="POST">
+                {{with .User}}
+                <input type="hidden" name="authorID" value="{{.ID}}">
+                <input type="hidden" name="postAuthor" value="{{.Name}}">
+                {{end}}
+                {{with .Threads}}
+                    <p>Выберите категорию</p>
+                    <div class="cats">
+                        {{range .}}
+                            <input type="checkbox" id="category{{.ID}}" name="category" value="{{.ID}}">
+                            <label for="category{{.ID}}">{{.Title}}</label>
+                        {{end}}
+                    </div>
+                    <br>
+                {{end}}
+                <br>
+                <p>Введите название</p>
+                <input type="text" name="postTitle" placeholder="Post title" required><br>
+                <p>Содержание</p>
+                <textarea name="postContent" placeholder="Post content" required></textarea><br>
+                <div class="bckbuttondiv">
+                    <input class="backbutton" type="submit" value="Add post">
+                </div>
+                <br>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

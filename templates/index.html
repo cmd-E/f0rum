@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="/css/indexstyles.css">
+</head>
+<body>
+    <nav>
+        <ul>
+            {{if ne .Name ""}}
+                <li><a href="/profile">{{.Name}}</a></li>
+                <li><a href="/logout">Log out</a></li>
+            {{else}}
+                <li><a href="/login">Log in</a></li>
+            {{end}}
+        </ul>   
+    </nav>
+    <div class="paddingdiv">
+        <div class="main">
+        <table>
+            <tr>
+                <th>Категории</th>
+                <th>Количество постов</th>
+            </tr>
+            <tr>
+                <td><hr></td>
+                <td><hr></td>
+            </tr>   
+            {{with .Threads}}
+                {{range .}}
+                        <tr>
+                            <td name="threadCreds">
+                                <a href="/thread/{{.ID}}">{{.Title}}</a><br/>
+                                <p>{{.Description}}</p>
+                            </td>
+                            <td name="postsCount">
+                                <p>Постов: {{.PostsCount}}</p>
+                            </td>
+                        </tr>
+                        
+                {{end}}
+            {{end}}
+        </table>
+        </div>
+    </div>
+    <!-- <script src="/js/addThread.js"></script>  -->
+</body>
+</html>

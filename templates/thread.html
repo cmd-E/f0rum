@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/threadsstyles.css">
+    <title>threads</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            {{if ne .Name ""}}
+                <li><a href="/profile">{{.Name}}</a></li>
+                <li><a href="/logout">Log out</a></li>
+            {{else}}
+                <li><a href="/login">Log in</a></li>
+            {{end}}
+        </ul>   
+    </nav>
+    <div class="buttons">
+        <a class="threadbuttons" href="/addpost">Создать пост</a>
+        <a class="threadbuttons" href="/">На главную</a>
+    </div>
+    <div class="paddingdiv">
+        <div class="main">
+            <table>
+                <tr>
+                    <th>Пост</th>
+                    <th>Лайки/Дизлайки</th>
+                </tr>
+                <tr>
+                    <td><hr></td>
+                    <td><hr></td>
+                </tr>   
+                {{with .Post}}
+                    {{range .}}
+                        <tr>
+                            <td>
+                                <a href="/post/{{.ID}}">{{.Title}}</a>
+                                <p>{{.Content}}</p>
+                                <p>Автор: {{.Author}}</p>
+                            </td>
+                            <td>
+                                <p>Лайков: {{.Likes}} | Дизлайков: {{.Dislikes}}</p>
+                            </td>
+                        </tr>
+                    {{end}}
+                {{end}}
+            </table>
+        </div>
+    </div>
+</body>
+</html>

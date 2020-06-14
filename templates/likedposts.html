@@ -1,0 +1,52 @@
+<html>
+    <header>
+        <link rel="stylesheet" href="../css/likedpostsstyles.css">
+        <title>My rated posts</title>
+    </header>
+    <body>
+        <nav>
+            <ul>
+                {{with .User}}
+                    {{if ne .Name ""}}
+                        <li><a href="/profile">{{.Name}}</a></li>
+                        <li><a href="/logout">Log out</a></li>
+                    {{else}}
+                        <li><a href="/login">Log in</a></li>
+                    {{end}}
+                {{end}}
+            </ul>   
+        </nav>
+        <div class="bckbuttondiv">
+            <a class="backbutton" href="/profile">Назад</a>
+        </div>
+        <div class="paddingdiv">
+            <div class="main">
+                <table>
+                    <tr>
+                        <th>Пост</th>
+                        <th>Лайки/Дизлайки</th>
+                    </tr>
+                    <tr>
+                        <td><hr></td>
+                        <td><hr></td>
+                    </tr>   
+                    {{with .Posts}}
+                        {{range .}}
+                            <tr>
+                                <td>
+                                    <a href="/post/{{.ID}}">{{.Title}}</a>
+                                    <p>{{.Content}}</p>
+                                    <p>Автор: {{.Author}}</p>
+                                </td>
+                                <td>
+                                    <p>Лайков: {{.Likes}} | Дизлайков: {{.Dislikes}}</p>
+                                </td>
+                            </tr>
+                        {{end}}
+                    {{end}}
+                </table>
+            </div>
+        </div>
+    </body>
+
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+</head>
+<body style="text-align: center; font-family: 'Open Sans', sans-serif;">
+<hr>
+    <h1>Threads</h1>
+<hr>
+    <form action="/newthread" method="POST">
+        <h1>Create thread</h1>
+        <input type="text" name="threadTitle" placeholder="thread title" required>
+        <input type="text" name="threadDescription" placeholder="thread description" required>
+        <input type="submit">
+    </form>
+    <form action="/deletethread" method="POST">
+        <h1>Delete thread</h1>
+        <input type="text" name="threadID" placeholder="Thread ID" required>
+        <input type="submit">
+    </form>
+<hr>
+    <h1>Posts</h1>
+<hr>
+    <form action="/newpost" method="POST">
+        <h1>Create post</h1>
+        <input type="text" name="authorID" placeholder="author id" required>
+        <input type="text" name="postAuthor" placeholder="post author" required>
+        <input type="text" name="postThreadID" placeholder="thread id" required>
+        <input type="text" name="postTitle" placeholder="post title" required>
+        <input type="text" name="postContent" placeholder="post content" required>
+        <input type="submit">
+    </form>
+    <form action="/deletepost" method="POST">
+        <h1>Delete post</h1>
+        <input type="text" name="postID" placeholder="post id" required>
+        <input type="submit">
+    </form>
+    <hr>
+    <h1>Comments</h1>
+    <hr>
+    <form action="/newcomment" method="POST">
+        <h1>Create comment</h1>
+        <input type="text" name="postID" placeholder="postID" required>
+        <input type="text" name="username" placeholder="username" required>
+        <input type="text" name="content" placeholder="content" required>
+        <input type="submit">
+    </form>
+    <form action="/deletecomment" method="POST">
+        <h1>Delete comment</h1>
+        <input type="text" name="commentID" placeholder="commentID" required>
+        <input type="submit">
+    </form>
+    <div style="width: 100%; text-align: center;margin-top: 20px;">
+        <a href="/">Main page</a>
+    </div>
+</body>
+</html>

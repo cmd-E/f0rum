@@ -1,0 +1,111 @@
+<html>
+    <head>
+    {{with .Post}}
+        <title>{{.Title}}</title>
+    {{end}}
+    <link rel="stylesheet" href="/css/poststyles.css">
+    </head>
+    <body>
+        <nav>
+            <ul>
+                {{if ne .Name ""}}
+                    <li><a href="/profile">{{.Name}}</a></li>
+                    <li><a href="/logout">Log out</a></li>
+                {{else}}
+                    <li><a href="/login">Log in</a></li>
+                {{end}}
+            </ul>   
+        </nav>
+        <div class="bckbuttondiv">
+            <a class="backbutton" href="/">На главную</a>
+        </div>
+        <div class="paddingdiv">
+            <div class="main">
+                {{with .Post}} <!-- Post -->
+                <div class="contentblock">
+                    <div class="postheader">
+                        <p class="postheader">{{.Title}}</p>
+                        <hr>
+                    </div>
+                    
+                    <div class="postcontent">
+                        <p>{{.Content}}</p>
+                    </div>
+                </div>
+                <hr>
+                {{end}}
+                {{if ne .Name ""}} <!-- if Name not "" display like buttons-->
+                    {{with .Post}}
+                        <div class="ratediv">
+                            <form action="/likepost/{{.ID}}" method="POST">
+                                <input class="ratebutton" type="submit" value="like"> <span>{{.Likes}}</span>
+                            </form>
+                            <form action="/dislikepost/{{.ID}}" method="POST">
+                                <input class="ratebutton" type="submit" value="dislike"> <span>{{.Dislikes}}</span>
+                            </form>
+                        </div>
+                    {{end}}
+                {{else}} <!-- else don't-->
+                    {{with .Post}}
+                        <div class="ratediv">
+                            <span>Лайков: {{.Likes}} | Дизлайков: {{.Dislikes}}</span>
+                        </div>
+                    {{end}}
+                {{end}}
+            </div>
+            <div class="comments">
+            <br>
+                    <div class="commheader">
+                    <span> Коментарии</span>
+                    </div>
+                    <br>
+                    <hr>
+                    {{if ne .Name ""}} <!-- if there is Name - display comments with likes buttons-->
+                        {{with .Comments}}
+                            {{range .}}
+                                <div class="singlecomment">
+                                    <p class="commauthor">User: {{.Username}}</p>
+                                    <p>{{.Content}}</p>
+                                    <div class="ratediv">
+                                        <form action="/likecomm/{{.ID}}" method="POST">
+                                            <input type="hidden" name="postID" value="{{.PostID}}">
+                                            <input class="ratebutton" type="submit" value="like"> <span>{{.Likes}}</span>
+                                        </form>
+                                        <form action="/dislikecomm/{{.ID}}" method="POST">
+                                            <input type="hidden" name="postID" value="{{.PostID}}">
+                                            <input class="ratebutton" type="submit" value="dislike"> <span>{{.Dislikes}}</span>
+                                        </form>
+                                    </div>
+                                </div>
+                                <hr>
+                            {{end}}
+                        {{end}}
+                        <div class="writecomment">
+                            <form action="/newcomment" method="POST"> <!-- text area for comment-->
+                                <p>Написать коментарий</p>
+                                {{with .Post}}
+                                    <input type="hidden" name="postID" value="{{.ID}}">
+                                {{end}}
+                                <input type="hidden" name="username" value="{{.Name}}">
+                                <textarea name="content" required></textarea>
+                                <p>{{.Message}}</p>
+                                <button class="ratebutton" type="submit" value="Post">Post</button>
+                            </form>
+                        <div>
+                    {{else}}
+                        {{with .Comments}} <!--else display just likes-->
+                            {{range .}}
+                                <p class="commauthor">User: {{.Username}}</p>
+                                <p class="postcontent">{{.Content}}</p>
+                                <div class="ratediv">
+                                    <span>Likes: {{.Likes}} | Dislikes: {{.Dislikes}}</span>
+                                </div>
+                                <hr>
+                            {{end}}
+                        {{end}}
+                        <p>Чтобы оставить коментарий нужно <a href="/login">Войти</a></p>
+                    {{end}}
+                </div>
+        </div>
+    </body>
+</html>

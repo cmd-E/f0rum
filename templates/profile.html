@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/profilestyles.css">
+    <title>Profile</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            {{with .User}}
+                {{if ne .Name ""}}
+                    <li><a href="/profile">{{.Name}}</a></li>
+                    <li><a href="/logout">Log out</a></li>
+                {{else}}
+                    <li><a href="/login">Log in</a></li>
+                {{end}}
+            {{end}}
+        </ul>   
+    </nav>
+    <div class="bckbuttondiv">
+        <a class="backbutton" href="/">На главную</a>
+    </div>
+    <div class="paddingdiv">
+        <div class="main">
+        <p>Профиль</p>
+            <table>
+                {{with .User}}
+                    <tr>
+                        <td><p>Username:</p></td>
+                        <td>{{.Name}}</td>
+                    </tr>
+                    <tr>                    
+                        <td><p>Email:</p></td>
+                        <td>{{.Email}}</td>
+                    </tr>
+                {{end}}
+            </table>
+            <div class="userlinks">
+                <p>Созданно <a href="/createdposts/{{.UserID}}">постов</a>: {{.CreatedPostsN}}</p>
+                <p>Оцененно <a href="/ratedposts/{{.UserID}}">постов</a>: {{.RatedPostsN}}</p>
+            </div>
+        </div>
+    </div>  
+</body>
+</html>

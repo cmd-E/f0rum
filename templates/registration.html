@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration</title>
+    <link rel="stylesheet" href="/css/regstyles.css">
+</head>
+<body>
+    <div class="mainform">
+        <h1>Registration</h1>
+        <form action="/reg" method="POST">
+            <hr>
+            <div class="textboxes">
+                <input class="tbcentered" type="text" name="username"  placeholder="Username" required/>
+                <input class="tbcentered" type="email" name="email" placeholder="E-mail" required/>
+                <input class="tbcentered" type="password" name="password" placeholder="Password" required/>
+                <input class="tbcentered" type="password" name="password_repeat" placeholder="Password again" required/>
+            </div>
+            
+            <div class="buttons">
+                <div class="centervertical"> </div>
+                <input type="submit" value="Register"/>
+                <a href="/login" class="loginbutton">Log In</a>
+            </div>
+            <div class="guest">
+                <a href="/">Enter as guest</a>
+            </div>
+            {{if .Wrong}}
+                <p class="error">Поля заполнены некоректно</p>
+            {{else if .UserExist}}
+                <p class="error">Пользователь существует</p>
+            {{end}}
+        </form>
+    </div>
+</body>
+</html>
