@@ -10,17 +10,18 @@
         <div class="mainform">
             <h1>Log In</h1>
             <form action="/log" method="POST">
+<input type="hidden" name="csrf" value="{{$.CSRF}}">
                 <hr>
                 <div class="textboxes">
                     <input class="tbcentered" type="text" name="username"  placeholder="Username" required/>
                     <input class="tbcentered" type="password" name="password" placeholder="Password" required/>
                 </div>
-                
+
                 <div class="buttons">
                     <!-- <a type="submit" class="button">Register</a> -->
                     <input type="submit" value="Log In"/>
                     <a href="/registration" class="loginbutton">Register</a>
-                    
+
                 </div>
                 <div class="guest">
                     <a href="/">Enter as guest</a>

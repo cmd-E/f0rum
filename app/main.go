@@ -1,98 +1,70 @@
 package main
 
 import (
-	"html/template"
+	"context"
+	"flag"
+	"github.com/IrvinIrvin/forum/app/forum"
 	"log"
+	"net"
 	"net/http"
-
-	"github.com/IrvinIrvin/forum/app/contentmanager/usermanager"
-	"github.com/IrvinIrvin/forum/app/dbconnect"
-	"github.com/IrvinIrvin/forum/app/entities/ientities"
-	"github.com/IrvinIrvin/forum/app/handlers/authhandlers/loghandlers"
-	"github.com/IrvinIrvin/forum/app/handlers/authhandlers/reghandlers"
-	"github.com/IrvinIrvin/forum/app/handlers/commhandlers"
-	"github.com/IrvinIrvin/forum/app/handlers/postshandlers"
-	"github.com/IrvinIrvin/forum/app/handlers/profilehandlers"
-	"github.com/IrvinIrvin/forum/app/handlers/threadhandlers"
-	"github.com/IrvinIrvin/forum/app/tools"
-
-	_ "github.com/mattn/go-sqlite3"
+	"os"
+	"os/signal"
+	"path/filepath"
+	"syscall"
+	"time"
 )
 
-func init() {
-	tools.Templates = template.Must(template.ParseGlob("../templates/*.html"))
-	dbconnect.DBConn = dbconnect.ConnectdbFunc()
-}
-
 func main() {
-
-	http.HandleFunc("/", index)      // handles main page
-	http.HandleFunc("/admin", admin) // handles admin page
-
-	http.HandleFunc("/registration", reghandlers.Registration)
-	http.HandleFunc("/reg", reghandlers.RegisterUser)
-
-	http.HandleFunc("/login", loghandlers.Login)
-	http.HandleFunc("/log", loghandlers.LoginUser)
-	http.HandleFunc("/logout", loghandlers.Logout)
-
-	http.HandleFunc("/profile", profilehandlers.Profile)
-	http.HandleFunc("/createdposts/", profilehandlers.Createdpostsfunc)
-	http.HandleFunc("/ratedposts/", profilehandlers.RatedPostsFunc)
-
-	http.HandleFunc("/thread/", threadhandlers.Thread)
-	http.HandleFunc("/newthread", threadhandlers.NewThread)
-	http.HandleFunc("/deletethread", threadhandlers.DeleteThread)
-
-	http.HandleFunc("/addpost", postshandlers.AddPostPage)
-	http.HandleFunc("/newpost", postshandlers.NewPostFunc)
-	http.HandleFunc("/deletepost", postshandlers.DeletePost)
-	http.HandleFunc("/post/", postshandlers.Post)
-	http.HandleFunc("/likepost/", postshandlers.LikeHandler)
-	http.HandleFunc("/dislikepost/", postshandlers.DislikeHandler)
-
-	http.HandleFunc("/newcomment", commhandlers.NewComment)
-	http.HandleFunc("/deletecomment", commhandlers.DeleteComment)
-	http.HandleFunc("/likecomm/", commhandlers.LikeComm)       // like comment func
-	http.HandleFunc("/dislikecomm/", commhandlers.DislikeComm) //dislike comment func
-
-	http.Handle("/favicon.ico", http.NotFoundHandler())
-	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("../css")))) // handles css folder
-	log.Println("Listening 8080...")
-	log.Println(http.ListenAndServe(":8080", nil))
-	// port := os.Getenv("PORT") //heroku присваивает свой порт сменить на свой при тестировании, либо экспортировать переменную PORT
-	// log.Println("heroku port: " + port)
-	// log.Println("Listening " + port + "...")
-	// log.Println(http.ListenAndServe(":"+port, nil))
-}
-
-// handles main page
-func index(w http.ResponseWriter, r *http.Request) {
-	log.Printf("index func (main.go)")
-	if r.URL.Path != "/" {
-		log.Printf("index func (main.go) Missing route: %s", r.URL.Path)
-		tools.ExecuteError(w, http.StatusNotFound, "Page not found")
-		return
+	root := flag.String("root", "..", "project directory containing templates, css and database")
+	database := flag.String("db", "", "SQLite database path (default: <root>/database/forum.db)")
+	address := flag.String("listen", "127.0.0.1:8080", "listen address")
+	insecure := flag.Bool("insecure-local", false, "allow HTTP cookies for local development only")
+	migrate := flag.Bool("migrate", false, "back up and migrate the database, then exit")
+	admin := flag.Int64("admin-user-id", 0, "verified existing administrator ID; requires -migrate")
+	flag.Parse()
+	if *insecure {
+		host, _, parseErr := net.SplitHostPort(*address)
+		ip := net.ParseIP(host)
+		if parseErr != nil || (host != "localhost" && (ip == nil || !ip.IsLoopback())) {
+			log.Fatal("-insecure-local requires a loopback listener")
+		}
 	}
-	IndexStruct := ientities.SetIndexStruct(r)
-	err := tools.Templates.ExecuteTemplate(w, "index.html", IndexStruct)
+	if *database == "" {
+		*database = filepath.Join(*root, "database", "forum.db")
+	}
+	if *admin != 0 && !*migrate {
+		log.Fatal("-admin-user-id requires -migrate")
+	}
+	store, err := forum.Open(*database)
 	if err != nil {
-		log.Fatal("main.go tools.Templates.ExecuteTemplate error: " + err.Error())
-		tools.ExecuteError(w, http.StatusInternalServerError, "Internal server error. Template error")
+		log.Fatal(err)
+	}
+	defer store.DB.Close()
+	if *migrate {
+		if err = store.Migrate(*database, *admin); err != nil {
+			log.Fatal(err)
+		}
+		log.Print("migration completed; legacy sessions invalidated")
 		return
 	}
-	return
-}
-
-func admin(w http.ResponseWriter, r *http.Request) {
-	if user := usermanager.GetUser(r); user.Name != "Deus" {
-		tools.ExecuteError(w, http.StatusForbidden, "Admin page forbidden for all account except admin")
-		return
+	if err = store.Initialize(); err != nil {
+		log.Fatal(err)
 	}
-	err := tools.Templates.ExecuteTemplate(w, "admin.html", nil)
+	app, err := forum.New(store, filepath.Join(*root, "templates"), filepath.Join(*root, "css"), !*insecure, log.Default())
 	if err != nil {
-		tools.ExecuteError(w, http.StatusInternalServerError, "Internal servaer error. Template error")
-		log.Fatal(err.Error())
+		log.Fatal(err)
 	}
-	return
+	server := &http.Server{Addr: *address, Handler: app, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second}
+	stopped := make(chan os.Signal, 1)
+	signal.Notify(stopped, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-stopped
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		server.Shutdown(ctx)
+	}()
+	log.Print("listening on ", *address)
+	if err = server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatal(err)
+	}
 }

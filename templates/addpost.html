@@ -11,9 +11,9 @@
         <ul>
             {{with .User}}
                 <li><a href="/profile">{{.Name}}</a></li>
-                <li><a href="/logout">Log out</a></li>
+                <li><form action="/logout" method="POST"><input type="hidden" name="csrf" value="{{$.CSRF}}"><button type="submit">Log out</button></form></li>
             {{end}}
-        </ul>   
+        </ul>
     </nav>
         <div class="bckbuttondiv">
             <a class="backbutton" href="/">На главную</a>
@@ -21,9 +21,8 @@
     <div class="paddingdiv">
         <div class="main">
             <form action="/newpost" method="POST">
+<input type="hidden" name="csrf" value="{{$.CSRF}}">
                 {{with .User}}
-                <input type="hidden" name="authorID" value="{{.ID}}">
-                <input type="hidden" name="postAuthor" value="{{.Name}}">
                 {{end}}
                 {{with .Threads}}
                     <p>Выберите категорию</p>

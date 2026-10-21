@@ -1,0 +1,4 @@
+.git
+database
+app/app
+**/*_test.go
