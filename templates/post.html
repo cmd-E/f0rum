@@ -10,11 +10,11 @@
             <ul>
                 {{if ne .Name ""}}
                     <li><a href="/profile">{{.Name}}</a></li>
-                    <li><a href="/logout">Log out</a></li>
+                    <li><form action="/logout" method="POST"><input type="hidden" name="csrf" value="{{$.CSRF}}"><button type="submit">Log out</button></form></li>
                 {{else}}
                     <li><a href="/login">Log in</a></li>
                 {{end}}
-            </ul>   
+            </ul>
         </nav>
         <div class="bckbuttondiv">
             <a class="backbutton" href="/">На главную</a>
@@ -27,7 +27,7 @@
                         <p class="postheader">{{.Title}}</p>
                         <hr>
                     </div>
-                    
+
                     <div class="postcontent">
                         <p>{{.Content}}</p>
                     </div>
@@ -38,9 +38,11 @@
                     {{with .Post}}
                         <div class="ratediv">
                             <form action="/likepost/{{.ID}}" method="POST">
+<input type="hidden" name="csrf" value="{{$.CSRF}}">
                                 <input class="ratebutton" type="submit" value="like"> <span>{{.Likes}}</span>
                             </form>
                             <form action="/dislikepost/{{.ID}}" method="POST">
+<input type="hidden" name="csrf" value="{{$.CSRF}}">
                                 <input class="ratebutton" type="submit" value="dislike"> <span>{{.Dislikes}}</span>
                             </form>
                         </div>
@@ -68,10 +70,12 @@
                                     <p>{{.Content}}</p>
                                     <div class="ratediv">
                                         <form action="/likecomm/{{.ID}}" method="POST">
+<input type="hidden" name="csrf" value="{{$.CSRF}}">
                                             <input type="hidden" name="postID" value="{{.PostID}}">
                                             <input class="ratebutton" type="submit" value="like"> <span>{{.Likes}}</span>
                                         </form>
                                         <form action="/dislikecomm/{{.ID}}" method="POST">
+<input type="hidden" name="csrf" value="{{$.CSRF}}">
                                             <input type="hidden" name="postID" value="{{.PostID}}">
                                             <input class="ratebutton" type="submit" value="dislike"> <span>{{.Dislikes}}</span>
                                         </form>
@@ -81,12 +85,12 @@
                             {{end}}
                         {{end}}
                         <div class="writecomment">
-                            <form action="/newcomment" method="POST"> <!-- text area for comment-->
+                            <form action="/newcomment" method="POST">
+<input type="hidden" name="csrf" value="{{$.CSRF}}"> <!-- text area for comment-->
                                 <p>Написать коментарий</p>
                                 {{with .Post}}
                                     <input type="hidden" name="postID" value="{{.ID}}">
                                 {{end}}
-                                <input type="hidden" name="username" value="{{.Name}}">
                                 <textarea name="content" required></textarea>
                                 <p>{{.Message}}</p>
                                 <button class="ratebutton" type="submit" value="Post">Post</button>

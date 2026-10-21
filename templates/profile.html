@@ -12,12 +12,12 @@
             {{with .User}}
                 {{if ne .Name ""}}
                     <li><a href="/profile">{{.Name}}</a></li>
-                    <li><a href="/logout">Log out</a></li>
+                    <li><form action="/logout" method="POST"><input type="hidden" name="csrf" value="{{$.CSRF}}"><button type="submit">Log out</button></form></li>
                 {{else}}
                     <li><a href="/login">Log in</a></li>
                 {{end}}
             {{end}}
-        </ul>   
+        </ul>
     </nav>
     <div class="bckbuttondiv">
         <a class="backbutton" href="/">На главную</a>
@@ -31,7 +31,7 @@
                         <td><p>Username:</p></td>
                         <td>{{.Name}}</td>
                     </tr>
-                    <tr>                    
+                    <tr>
                         <td><p>Email:</p></td>
                         <td>{{.Email}}</td>
                     </tr>
@@ -42,6 +42,6 @@
                 <p>Оцененно <a href="/ratedposts/{{.UserID}}">постов</a>: {{.RatedPostsN}}</p>
             </div>
         </div>
-    </div>  
+    </div>
 </body>
 </html>
