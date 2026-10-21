@@ -14,9 +14,7 @@ func guestForm(t *testing.T, a *App, path string, form url.Values) *httptest.Res
 	page := httptest.NewRecorder()
 	a.ServeHTTP(page, httptest.NewRequest("GET", "/login", nil))
 	var token string
-	request := httptest.NewRequest("POST", path, nil)
 	for _, cookie := range page.Result().Cookies() {
-		request.AddCookie(cookie)
 		if cookie.Name == "csrf" {
 			token = cookie.Value
 		}
@@ -25,7 +23,7 @@ func guestForm(t *testing.T, a *App, path string, form url.Values) *httptest.Res
 		t.Fatal("pre-authentication CSRF cookie missing")
 	}
 	form.Set("csrf", token)
-	request = httptest.NewRequest("POST", path, strings.NewReader(form.Encode()))
+	request := httptest.NewRequest("POST", path, strings.NewReader(form.Encode()))
 	for _, cookie := range page.Result().Cookies() {
 		request.AddCookie(cookie)
 	}

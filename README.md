@@ -53,6 +53,10 @@ test logs and coverage. The minimum total statement coverage is recorded in
 `.github/coverage-baseline.json`. SQLite tests use temporary databases; authentication,
 session rotation/revocation, CSRF, role enforcement, atomic writes, vote uniqueness,
 query filters, escaping and schema-version rejection are exercised without live data.
+Synthetic legacy migration tests also verify backup contents, identity preservation,
+invalidated legacy sessions and complete rollback on orphan or duplicate records.
+The hosted suite currently reports 76.67% total statement coverage, including the
+server entry point, with a 76% regression floor.
 The Python migration rehearsal reads the existing fixture database and changes only
 a disposable copy; it is an additional local check, not a production migration.
 
