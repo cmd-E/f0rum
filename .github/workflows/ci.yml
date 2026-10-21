@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 5 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Go build and tests
+    env:
+      CGO_ENABLED: '1'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.27.x'
+          cache: true
+      - name: Verify modules, formatting and static checks
+        run: |
+          go mod download
+          go mod verify
+          test -z "$(gofmt -l $(git ls-files '*.go'))"
+          go vet ./...
+      - name: Build and run tests with race detection and coverage
+        run: |
+          mkdir -p .artifacts
+          go build ./...
+          go test -race -count=1 -coverpkg=./... -coverprofile=.artifacts/coverage.out -json ./... > .artifacts/tests.json
+      - name: Enforce coverage and publish summary
+        run: |
+          go tool cover -func=.artifacts/coverage.out | tee .artifacts/coverage-summary.txt
+          python3 tests/check_coverage.py
+          cat .artifacts/coverage-summary.txt >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload test results and coverage
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: go-test-results
+          path: .artifacts/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
+
+  codeql:
+    name: CodeQL (go)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.27.x'
+          cache: true
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@48870fdd6b42ee6474ec4207209ff87609271a5e # v4.39.0
+        with:
+          languages: go
+          build-mode: manual
+          queries: security-extended
+      - name: Build for analysis
+        env:
+          CGO_ENABLED: '1'
+        run: go build ./...
+      - name: Analyze and upload findings
+        uses: github/codeql-action/analyze@48870fdd6b42ee6474ec4207209ff87609271a5e # v4.39.0
+        with:
+          category: /language:go

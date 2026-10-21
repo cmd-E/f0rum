@@ -36,3 +36,25 @@ The CGO integration suite uses disposable databases for account uniqueness, auth
 ## Container
 
 The image builds CGO explicitly, keeps user data out of the image, and runs as an unprivileged user. Mount a writable /data volume, expose the application only behind HTTPS, and supply the intended listener/database arguments. Backups and migrations should be run while the application is stopped.
+
+## Continuous integration and regression tests
+
+Use Go 1.26 or later, SQLite's CGO driver and a C compiler (GCC on Linux):
+
+```sh
+CGO_ENABLED=1 go test -race -count=1 -coverpkg=./... -coverprofile=coverage.out ./...
+go vet ./...
+python app/tests_schema.py
+```
+
+CI uses Go 1.27 on Ubuntu with CGO enabled. It builds the server, runs the real
+SQLite HTTP/store integration tests and unit tests with race detection, and uploads
+test logs and coverage. The minimum total statement coverage is recorded in
+`.github/coverage-baseline.json`. SQLite tests use temporary databases; authentication,
+session rotation/revocation, CSRF, role enforcement, atomic writes, vote uniqueness,
+query filters, escaping and schema-version rejection are exercised without live data.
+The Python migration rehearsal reads the existing fixture database and changes only
+a disposable copy; it is an additional local check, not a production migration.
+
+CodeQL and weekly Go/Actions Dependabot updates run through `.github`. The proposed
+branch ruleset requires both CI jobs; it must be applied separately in GitHub settings.
